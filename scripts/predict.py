@@ -3,6 +3,7 @@ from functools import lru_cache
 from huggingface_hub import hf_hub_download
 from scripts.onnxruntime_manager import open_onnx_model
 import numpy as np
+import torch
 
 
 FILTER_MODEL = None
@@ -18,11 +19,17 @@ def _load_model():
     return open_onnx_model(
         hf_hub_download(
             'deepghs/imgutils-models', # thank you deepghs for converting to onnx
-            f'nsfw/nsfwjs.onnx'
-        )
+            'nsfw/nsfwjs.onnx'
+        ),
+        torch.cuda.is_available()
     )
 
 def is_nsfw(image: Image) -> bool:
+    """
+    Determine if image is NSFW
+    Includes 'hentai', 'porn', 'sexy' as NSFW labels.
+    WARN : The model has bias, it may not be able to detect certain types of NSFW images.
+    """
     model = load_filter_model() # session 
     image = image.convert('RGB').resize((224, 224), Image.NEAREST)
     # as ndarray
