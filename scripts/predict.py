@@ -24,7 +24,7 @@ def _load_model():
         torch.cuda.is_available()
     )
 
-def is_nsfw(image: Image) -> bool:
+def is_nsfw(image: Image.Image) -> bool:
     """
     Determine if image is NSFW
     Includes 'hentai', 'porn', 'sexy' as NSFW labels.

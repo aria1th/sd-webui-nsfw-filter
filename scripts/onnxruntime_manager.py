@@ -1,5 +1,5 @@
 from onnxruntime import InferenceSession, SessionOptions, GraphOptimizationLevel
-def open_onnx_model(ckpt: str, use_cuda:bool=True) -> InferenceSession:
+def open_onnx_model(ckpt: str, use_cuda: bool=True) -> InferenceSession:
     """
     Open ONNX model and returns session
     
