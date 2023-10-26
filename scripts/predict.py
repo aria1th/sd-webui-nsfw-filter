@@ -2,6 +2,7 @@ from PIL import Image
 from functools import lru_cache
 from huggingface_hub import hf_hub_download
 from scripts.onnxruntime_manager import open_onnx_model
+from scripts.config import load_safety_level
 import numpy as np
 import torch
 
@@ -35,10 +36,20 @@ def is_nsfw(image: Image.Image) -> bool:
     # as ndarray
     image = ((np.array(image) / 255.0)[None,...]).astype(np.float32)
     scores, = model.run(['dense_3'], {'input_1': image})
+    # scores : [0.06,0.01,0.01,0.91,0.01]... like this
     max_idx = np.argmax(scores)
     # _labels = ['drawings', 'hentai', 'neutral', 'porn', 'sexy'] # from nsfwjs repo
     # strict
-    if max_idx in [1, 3, 4]:
+    level_safety = load_safety_level() # 'safe' , 'questionable' , 'explicit'
+    # safe -> [1,3,4]
+    # questionable -> [1,3]
+    # explicit -> []
+    levels_to_idx = {
+        'safe': [1,3,4],
+        'questionable': [1,3],
+        'explicit': []
+    }
+    if max_idx in levels_to_idx[level_safety]:
         return True
     return False
     
